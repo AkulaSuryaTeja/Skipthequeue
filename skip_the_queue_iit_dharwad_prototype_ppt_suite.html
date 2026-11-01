@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skip The Queue | IIT Dharwad Smart Canteen System</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            iit: {
+              purple: '#4C1D95',
+              indigo: '#312E81',
+              amber: '#F59E0B',
+              orange: '#EA580C',
+              surface: '#F8FAFC'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0F172A;
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+
+    /* Custom Phone Mockup Frame */
+    .phone-frame {
+      width: 365px;
+      height: 750px;
+      border-radius: 46px;
+      border: 10px solid #1E293B;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 2px #334155;
+      background: #FFFFFF;
+      color: #0F172A;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .phone-notch {
+      width: 120px;
+      height: 24px;
+      background: #1E293B;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 30;
+    }
+
+    /* Hide scrollbar inside phone */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Pulse & scan animations */
+    @keyframes scanline {
+      0% { top: 8%; opacity: 0.9; }
+      50% { top: 88%; opacity: 1; }
+      100% { top: 8%; opacity: 0.9; }
+    }
+    .scan-laser {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #EF4444, #F97316, #EF4444, transparent);
+      box-shadow: 0 0 12px #EF4444;
+      animation: scanline 2.2s ease-in-out infinite;
+    }
+
+    /* Print / PDF Styles for Presentation Mode */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION BAR (SWITCH BETWEEN PROTOTYPE, UI GALLERY FOR SCREENSHOTS, AND PPT SLIDES) -->
+  <header class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand / Course Tag -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white font-display font-extrabold text-lg shadow-lg shadow-orange-500/20">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-display font-extrabold text-base sm:text-lg tracking-tight text-white">Skip The Queue</h1>
+            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+              IIT Dharwad
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Design Thinking & Creativity • PD-3 Prototype & UI Suite</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Pills -->
+      <div class="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+        <button onclick="switchWorkspaceMode('prototype')" id="tab-prototype" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-orange-500 text-white shadow">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>1. Interactive App</span>
+        </button>
+        <button onclick="switchWorkspaceMode('gallery')" id="tab-gallery" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-300 hover:text-white">
+          <i class="fa-solid fa-images"></i>
+          <span>2. All 6 UI Screens (For PPT)</span>
+        </button>
+        <button onclick="switchWorkspaceMode('ppt')" id="tab-ppt" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-300 hover:text-white">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <span>3. Ready Slide Deck (PD-3)</span>
+        </button>
+      </div>
+
+      <!-- Quick Helper Button -->
+      <div class="hidden lg:flex items-center gap-2">
+        <button onclick="openGithubModal()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-2 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>How to Host on GitHub</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- WORKSPACE 1: LIVE INTERACTIVE PROTOTYPE (STUDENT APP + STAFF QR SCANNER) -->
+  <!-- ========================================================================= -->
+  <main id="workspace-prototype" class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left Column: Interactive Controls & Scenario Jumpers (4 cols) -->
+      <div class="lg:col-span-4 space-y-5">
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5">
+          <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-400 bg-orange-500/10 px-2.5 py-1 rounded-full mb-3">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Interactive Demo Controller
+          </div>
+          <h2 class="font-display font-bold text-xl text-white mb-1">Test the Full IIT Dharwad Flow</h2>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Click directly inside the mobile phone on the right, or use these quick-jump buttons to jump to any screen for your presentation demo.
+          </p>
+
+          <!-- Screen Quick Jump Buttons -->
+          <div class="space-y-2">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Jump to App Screen:</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="setAppScreen('home')" id="jump-home" class="jump-btn text-left px-3 py-2.5 rounded-xl border text-xs font-semibold transition flex items-center gap-2 bg-orange-500/20 border-orange-500 text-orange-200">
+                <i class="fa-solid fa-utensils w-4 text-center"></i> 1. Menu & Rush
+              </button>
+              <button onclick="setAppScreen('drop')" id="jump-drop" class="jump-btn text-left px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 text-xs font-semibold transition flex items-center gap-2">
+                <i class="fa-solid fa-location-dot w-4 text-center"></i> 2. Pickup Point
+              </button>
+              <button onclick="setAppScreen('checkout')" id="jump-checkout" class="jump-btn text-left px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 text-xs font-semibold transition flex items-center gap-2">
+                <i class="fa-solid fa-ban w-4 text-center"></i> 3. No-Cancel Pay
+              </button>
+              <button onclick="setAppScreen('tracking')" id="jump-tracking" class="jump-btn text-left px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 text-xs font-semibold transition flex items-center gap-2">
+                <i class="fa-solid fa-clock w-4 text-center"></i> 4. Smart ETA
+              </button>
+              <button onclick="setAppScreen('qr')" id="jump-qr" class="jump-btn text-left px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 text-xs font-semibold transition flex items-center gap-2 col-span-2">
+                <i class="fa-solid fa-qrcode w-4 text-center"></i> 5. QR Pass & Handover Scan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem vs Solution Impact Card -->
+        <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-5 space-y-4">
+          <h3 class="font-display font-bold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-stopwatch text-orange-400"></i> Why "Skip The Queue" Works
+          </h3>
+
+          <div class="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+            <div class="flex justify-between items-center text-xs font-bold text-red-300 mb-1">
+              <span>BEFORE (Current Canteen Rush)</span>
+              <span>~28 Mins Wait</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden flex">
+              <div class="bg-red-500 h-full" style="width: 55%" title="15m Order Queue"></div>
+              <div class="bg-amber-500 h-full" style="width: 35%" title="10m Food Prep"></div>
+              <div class="bg-purple-500 h-full" style="width: 10%" title="3m Bill Check"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1.5">
+              <span>🔴 15m Billing Line</span>
+              <span>🟠 10m Prep</span>
+              <span>🟣 3m Paper Bill Check</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <div class="flex justify-between items-center text-xs font-bold text-emerald-300 mb-1">
+              <span>AFTER (Skip The Queue App)</span>
+              <span>< 1 Min Physical Wait!</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden flex">
+              <div class="bg-emerald-500 h-full" style="width: 15%"></div>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1.5">
+              Order from class/hostel → Walk to <b>R&D Block / Library / Admin / Express Counter</b> when ETA hits 0 → Scan QR in 3 seconds!
+            </p>
+          </div>
+        </div>
+
+        <!-- Simulated Delivery / Counter Staff Scanner Widget -->
+        <div class="bg-gradient-to-br from-indigo-950 to-slate-900 border border-indigo-500/40 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 px-2.5 py-0.5 rounded-full">
+              Counter / Runner Side
+            </span>
+            <span class="text-xs text-emerald-400 font-mono" id="scanner-status-badge">● Ready to Scan</span>
+          </div>
+          <h3 class="font-display font-bold text-base text-white mb-1">Staff QR Verification Simulator</h3>
+          <p class="text-xs text-slate-300 mb-3">
+            Replaces manual paper bill checking! When the student shows their Order QR at the pickup point, click below to simulate the delivery person scanning it.
+          </p>
+          <button onclick="simulateStaffQRScan()" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+            <i class="fa-solid fa-camera"></i>
+            <span>Simulate Delivery Person Scanning QR</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Center Interactive Mobile Frame (8 cols) -->
+      <div class="lg:col-span-8 flex flex-col items-center justify-center">
+        <div class="phone-frame" id="interactive-phone">
+          <!-- Top Phone Notch -->
+          <div class="bg-slate-900 text-white px-5 pt-2 pb-1 flex items-center justify-between text-[11px] font-semibold">
+            <span>1:15 PM</span>
+            <div class="phone-notch"></div>
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-wifi text-[10px]"></i>
+              <i class="fa-solid fa-battery-three-quarters"></i>
+            </div>
+          </div>
+
+          <!-- Dynamic Screen Content Container -->
+          <div id="phone-screen-content" class="flex-1 flex flex-col overflow-hidden bg-slate-50 text-slate-900">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- WORKSPACE 2: ALL 6 UI SCREENS SHOWCASE (READY FOR PPT SCREENSHOTS)        -->
+  <!-- ========================================================================= -->
+  <section id="workspace-gallery" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">PPT Asset Generator</span>
+        <h2 class="font-display font-extrabold text-2xl text-white mt-0.5">All 6 High-Res UI Screens for Your PD-3 PPT</h2>
+        <p class="text-sm text-slate-300 mt-1">
+          Every key feature you described—McDonald's digital ordering, Campus Drop-off Points (R&D, Library, Admin, Hostel Gate), Strict No-Cancellation, Dynamic ETA, and Final QR Scan—is laid out below for clean screenshots.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleGalleryAnnotations()" id="btn-toggle-notes" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold flex items-center gap-2 transition">
+          <i class="fa-solid fa-tag"></i>
+          <span>Toggle Callout Badges</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid of 6 Static High-Craft UI Screens -->
+    <div id="gallery-screens-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 justify-items-center pb-12">
+      <!-- Populated automatically on load so all 6 screens can be screenshotted cleanly -->
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- WORKSPACE 3: READY-MADE PD-3 PRESENTATION SLIDE DECK                      -->
+  <!-- ========================================================================= -->
+  <section id="workspace-ppt" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 py-6 flex flex-col">
+    <!-- Slide Controls Bar -->
+    <div class="no-print bg-slate-800 border border-slate-700 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-300 font-mono text-xs font-bold" id="slide-counter">
+          Slide 1 / 7
+        </span>
+        <span class="text-sm font-semibold text-slate-200">Design Thinking & Creativity — PD-3 Deck</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="changeSlide(-1)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-arrow-left"></i> Prev
+        </button>
+        <button onclick="changeSlide(1)" class="px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+          Next <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button onclick="window.print()" class="ml-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-file-pdf"></i> Print / Save PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Slide Canvas (16:9 Presentation Ratio Card) -->
+    <div id="ppt-slide-stage" class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 border-2 border-slate-700 rounded-3xl p-6 sm:p-12 shadow-2xl min-h-[540px] flex flex-col justify-between relative overflow-hidden">
+      <!-- Populated by renderSlide() -->
+    </div>
+
+    <!-- Slide Thumbnail Dots -->
+    <div class="no-print flex justify-center gap-2 mt-5" id="slide-dots"></div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- GITHUB PAGES HOSTING HELPER MODAL                                         -->
+  <!-- ========================================================================= -->
+  <div id="github-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
+          <i class="fa-brands fa-github text-xl"></i> Put This Prototype Live on GitHub Pages
+        </h3>
+        <button onclick="closeGithubModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <ol class="text-xs sm:text-sm text-slate-300 space-y-3 list-decimal list-inside leading-relaxed">
+        <li>Create a new public repository on GitHub (e.g., <code class="text-orange-300 bg-slate-800 px-1.5 py-0.5 rounded">skip-the-queue-iitdh</code>).</li>
+        <li>Upload this single file named <code class="text-orange-300 bg-slate-800 px-1.5 py-0.5 rounded">index.html</code> to the repository.</li>
+        <li>Go to <b>Settings → Pages</b>, select branch <b>main</b>, and click <b>Save</b>.</li>
+        <li>In 60 seconds, your live public link (<code class="text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded">https://your-username.github.io/skip-the-queue-iitdh/</code>) is ready to send to your teammates and include in your PD-3 slides!</li>
+      </ol>
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeGithubModal()" class="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold">Got It!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- APPLICATION JAVASCRIPT & STATE ENGINE                                     -->
+  <!-- ========================================================================= -->
+  <script>
+    // --- 1. IIT DHARWAD CANTEEN DATA & STATE ---
+    const MENU_ITEMS = [
+      {
+        id: 'm1',
+        name: 'Mysore Masala Dosa',
+        category: 'South Indian',
+        prepMins: 6,
+        price: 55,
+        tag: 'Fastest Prep',
+        emoji: '🥞',
+        popular: true
+      },
+      {
+        id: 'm2',
+        name: 'Paneer Tikka Kathi Roll',
+        category: 'Grab & Go',
+        prepMins: 7,
+        price: 70,
+        tag: 'Hostel Favorite',
+        emoji: '🌯',
+        popular: true
+      },
+      {
+        id: 'm3',
+        name: 'Special Chicken Biryani Bowl',
+        category: 'Lunch Combo',
+        prepMins: 5,
+        price: 110,
+        tag: 'Ready Batch',
+        emoji: '🍲',
+        popular: true
+      },
+      {
+        id: 'm4',
+        name: 'Samosa Chat + Masala Chai',
+        category: '4 PM Rush',
+        prepMins: 4,
+        price: 45,
+        tag: 'Express',
+        emoji: '☕',
+        popular: false
+      },
+      {
+        id: 'm5',
+        name: 'Schezwan Veg Fried Rice',
+        category: 'Wok Station',
+        prepMins: 9,
+        price: 65,
+        tag: 'Made to Order',
+        emoji: '🍚',
+        popular: false
+      },
+      {
+        id: 'm6',
+        name: 'Chilled Cold Coffee',
+        category: 'Beverages',
+        prepMins: 3,
+        price: 40,
+        tag: 'Instant',
+        emoji: '🥤',
+        popular: false
+      }
+    ];
+
+    const PICKUP_POINTS = [
+      {
+        id: 'rnd',
+        name: 'R&D Block Drop Point',
+        subtitle: 'Research Building Main Foyer Bench',
+        mode: 'Campus Drop-Point Delivery',
+        walkSaved: 'Saves 15m queue + walk',
+        etaBatchMins: 14,
+        deliveryFee: 10,
+        icon: 'fa-flask',
+        badge: 'Popular for Lab Students'
+      },
+      {
+        id: 'lib',
+        name: 'Library (KRC Entrance)',
+        subtitle: 'Knowledge Resource Centre Drop Zone',
+        mode: 'Campus Drop-Point Delivery',
+        walkSaved: 'Study uninterrupted',
+        etaBatchMins: 12,
+        deliveryFee: 10,
+        icon: 'fa-book-open',
+        badge: 'Next Runner in 5m'
+      },
+      {
+        id: 'admin',
+        name: 'Admin Block Porch',
+        subtitle: 'Main Administrative Building Gate',
+        mode: 'Campus Drop-Point Delivery',
+        walkSaved: 'Zero queue wait',
+        etaBatchMins: 13,
+        deliveryFee: 10,
+        icon: 'fa-building-columns',
+        badge: 'Scheduled Drop'
+      },
+      {
+        id: 'hostel',
+        name: 'Hostel Security Gate Drop',
+        subtitle: 'Outside Dorm Perimeter (No Outsiders Inside)',
+        mode: 'Hostel Gate Handover',
+        walkSaved: 'Delivered to Hostel Gate',
+        etaBatchMins: 16,
+        deliveryFee: 10,
+        icon: 'fa-shield-halved',
+        badge: 'Dorm Policy Compliant'
+      },
+      {
+        id: 'counter',
+        name: 'Canteen Express Window',
+        subtitle: 'McDonald’s Style Self-Pickup Counter',
+        mode: 'Express Self-Pickup',
+        walkSaved: 'Skip 15m Billing Line',
+        etaBatchMins: 8,
+        deliveryFee: 0,
+        icon: 'fa-bolt',
+        badge: '₹0 Delivery Fee'
+      }
+    ];
+
+    let appState = {
+      currentScreen: 'home', // 'home' | 'drop' | 'checkout' | 'tracking' | 'qr'
+      selectedCategory: 'All',
+      cart: { m1: 1, m2: 1 }, // Pre-loaded with 2 items so demo works immediately
+      selectedPointId: 'rnd',
+      noCancelAccepted: true,
+      paymentMethod: 'UPI (GPay / PhonePe)',
+      orderId: 'IITDH-8492',
+      qrVerified: false,
+      showGalleryNotes: true
+    };
+
+    // --- 2. CART HELPERS ---
+    function updateCartQty(itemId, delta) {
+      const current = appState.cart[itemId] || 0;
+      const next = Math.max(0, current + delta);
+      if (next === 0) {
+        delete appState.cart[itemId];
+      } else {
+        appState.cart[itemId] = next;
+      }
+      renderInteractivePhone();
+    }
+
+    function getCartSummary() {
+      let count = 0;
+      let subtotal = 0;
+      let maxPrep = 5;
+      const items = [];
+      for (const [id, qty] of Object.entries(appState.cart)) {
+        const item = MENU_ITEMS.find(m => m.id === id);
+        if (item && qty > 0) {
+          count += qty;
+          subtotal += item.price * qty;
+          if (item.prepMins > maxPrep) maxPrep = item.prepMins;
+          items.push({ ...item, qty });
+        }
+      }
+      const point = PICKUP_POINTS.find(p => p.id === appState.selectedPointId) || PICKUP_POINTS[0];
+      const fee = count > 0 ? point.deliveryFee : 0;
+      const total = subtotal + fee;
+      // Heuristic ETA = max item prep + runner transit + kitchen queue factor
+      const estimatedMins = point.id === 'counter' ? maxPrep + 3 : point.etaBatchMins;
+      return { count, subtotal, fee, total, items, point, estimatedMins };
+    }
+
+    // --- 3. RENDER MOBILE SCREEN HTML (USED BY BOTH INTERACTIVE APP & GALLERY) ---
+    function buildScreenHTML(screenName, isStaticGallery = false, customStateOverride = null) {
+      const state = customStateOverride || appState;
+      const summary = getCartSummary();
+
+      // Common App Header
+      const headerBar = `
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center text-white font-bold text-xs">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+              <div class="font-display font-bold text-xs leading-none flex items-center gap-1">
+                <span>Skip The Queue</span>
+                <span class="text-[9px] bg-orange-500/30 text-orange-300 px-1.5 py-0.5 rounded">IITDH</span>
+              </div>
+              <p class="text-[10px] text-slate-300 mt-0.5">📍 ${summary.point.name}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> Peak Rush
+            </span>
+          </div>
+        </div>
+      `;
+
+      // SCREEN 1: HOME MENU & LIVE CANTEEN CROWD SAVER
+      if (screenName === 'home') {
+        return `
+          ${headerBar}
+          <div class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3.5 bg-slate-50">
+            <!-- Live Queue Bypass Banner -->
+            <div class="bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-2xl p-3.5 shadow-md">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider opacity-90">
+                <span>🔥 Canteen Rush Alert (1:15 PM)</span>
+                <span class="bg-black/25 px-2 py-0.5 rounded-full">Save 25 Mins</span>
+              </div>
+              <p class="font-display font-extrabold text-sm mt-1">
+                Counter Wait: 15m Line + 10m Prep
+              </p>
+              <p class="text-[11px] opacity-95 mt-0.5">
+                Order here like McDonald's self-order & pick up via QR at <b>${summary.point.name}</b>!
+              </p>
+            </div>
+
+            <!-- Quick Mode Strip -->
+            <div onclick="${isStaticGallery ? '' : "setAppScreen('drop')"}" class="bg-white border border-slate-200 rounded-xl p-2.5 flex items-center justify-between cursor-pointer hover:border-orange-400 transition shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                  <i class="fa-solid ${summary.point.icon}"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-slate-400 uppercase">Selected Drop / Pickup Point</p>
+                  <p class="text-xs font-bold text-slate-800">${summary.point.name}</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-lg">Change →</span>
+            </div>
+
+            <!-- Menu List -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-display font-bold text-xs uppercase tracking-wider text-slate-500">Live Canteen Menu</h3>
+                <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Instant Digital Token</span>
+              </div>
+              <div class="space-y-2">
+                ${MENU_ITEMS.map(item => {
+                  const qty = state.cart[item.id] || 0;
+                  return `
+                    <div class="bg-white border border-slate-200/90 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-xl">
+                          ${item.emoji}
+                        </div>
+                        <div>
+                          <div class="flex items-center gap-1.5">
+                            <p class="font-bold text-xs text-slate-800">${item.name}</p>
+                          </div>
+                          <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-xs font-extrabold text-slate-900">₹${item.price}</span>
+                            <span class="text-[10px] text-slate-500">• ⏱ ~${item.prepMins}m prep</span>
+                            <span class="text-[9px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${item.tag}</span>
+                          </div>
+                        </div>
+                      </div>
+                      ${qty === 0 ? `
+                        <button onclick="${isStaticGallery ? '' : `updateCartQty('${item.id}', 1)`}" class="px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-200 text-orange-600 font-bold text-xs hover:bg-orange-100">
+                          + ADD
+                        </button>
+                      ` : `
+                        <div class="flex items-center bg-orange-500 text-white rounded-lg overflow-hidden text-xs font-bold">
+                          <button onclick="${isStaticGallery ? '' : `updateCartQty('${item.id}', -1)`}" class="px-2 py-1 hover:bg-orange-600">−</button>
+                          <span class="px-2">${qty}</span>
+                          <button onclick="${isStaticGallery ? '' : `updateCartQty('${item.id}', 1)`}" class="px-2 py-1 hover:bg-orange-600">+</button>
+                        </div>
+                      `}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Sticky Cart Bar -->
+          <div class="p-3 bg-white border-t border-slate-200">
+            <button onclick="${isStaticGallery ? '' : "setAppScreen('drop')"}" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-display font-bold text-xs flex items-center justify-between shadow-lg">
+              <span>${summary.count} Items • ₹${summary.subtotal}</span>
+              <span class="flex items-center gap-1.5 text-orange-400">Select Pickup Point <i class="fa-solid fa-arrow-right"></i></span>
+            </button>
+          </div>
+        `;
+      }
+
+      // SCREEN 2: CAMPUS PICKUP POINT SELECTOR (HOSTEL DORM RULE EXPLAINED)
+      if (screenName === 'drop') {
+        return `
+          ${headerBar}
+          <div class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <button onclick="${isStaticGallery ? '' : "setAppScreen('home')"}" class="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Back to Menu
+              </button>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Step 2 of 4</span>
+            </div>
+
+            <div>
+              <h2 class="font-display font-extrabold text-base text-slate-900">Choose Campus Drop Point</h2>
+              <p class="text-[11px] text-slate-600 mt-0.5">
+                Since non-residents are not permitted inside hostel dorm corridors, select an approved IIT Dharwad drop-off hub or express counter.
+              </p>
+            </div>
+
+            <!-- Hostel Policy Notice Banner -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 flex items-start gap-2">
+              <i class="fa-solid fa-circle-info text-amber-600 text-xs mt-0.5"></i>
+              <p class="text-[10px] text-amber-900 leading-relaxed">
+                <b>Campus Security Rule:</b> Delivery runners drop orders at designated building foyers or Hostel Security Gates. Scan your QR to collect!
+              </p>
+            </div>
+
+            <!-- Pickup Points Radio Cards -->
+            <div class="space-y-2">
+              ${PICKUP_POINTS.map(pt => {
+                const active = state.selectedPointId === pt.id;
+                return `
+                  <div onclick="${isStaticGallery ? '' : `selectPickupPoint('${pt.id}')`}" class="p-3 rounded-xl border-2 cursor-pointer transition flex items-start justify-between ${active ? 'border-orange-500 bg-orange-50/60' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                    <div class="flex items-start gap-2.5">
+                      <div class="w-8 h-8 rounded-lg ${active ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-xs mt-0.5">
+                        <i class="fa-solid ${pt.icon}"></i>
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <p class="font-bold text-xs text-slate-900">${pt.name}</p>
+                        </div>
+                        <p class="text-[10px] text-slate-500">${pt.subtitle}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                          <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">⏱ ~${pt.etaBatchMins} mins ETA</span>
+                          <span class="text-[10px] font-semibold text-slate-600">${pt.deliveryFee === 0 ? 'Free Pickup' : '+₹' + pt.deliveryFee + ' Drop Fee'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-300'}">
+                      ${active ? '<i class="fa-solid fa-check text-[9px]"></i>' : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="p-3 bg-white border-t border-slate-200">
+            <button onclick="${isStaticGallery ? '' : "setAppScreen('checkout')"}" class="w-full py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-display font-bold text-xs flex items-center justify-between shadow-lg">
+              <span>Deliver to ${summary.point.name}</span>
+              <span>Proceed to Pay <i class="fa-solid fa-arrow-right ml-1"></i></span>
+            </button>
+          </div>
+        `;
+      }
+
+      // SCREEN 3: STRICT NO-CANCELLATION POLICY & INSTANT BILLING
+      if (screenName === 'checkout') {
+        return `
+          ${headerBar}
+          <div class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <button onclick="${isStaticGallery ? '' : "setAppScreen('drop')"}" class="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Change Point
+              </button>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Step 3 of 4</span>
+            </div>
+
+            <!-- Order Summary Card -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2 shadow-sm">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div>
+                  <p class="text-[10px] font-bold uppercase text-slate-400">Drop-Off Location</p>
+                  <p class="text-xs font-extrabold text-slate-900">📍 ${summary.point.name}</p>
+                </div>
+                <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
+                  ETA: ~${summary.estimatedMins} mins
+                </span>
+              </div>
+
+              <div class="space-y-1.5">
+                ${summary.items.map(it => `
+                  <div class="flex justify-between text-xs">
+                    <span class="text-slate-700">${it.qty}x ${it.name}</span>
+                    <span class="font-semibold text-slate-900">₹${it.price * it.qty}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="border-t border-slate-100 pt-2 space-y-1 text-xs">
+                <div class="flex justify-between text-slate-500">
+                  <span>Item Total</span>
+                  <span>₹${summary.subtotal}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                  <span>Campus Runner Drop Fee</span>
+                  <span>₹${summary.fee}</span>
+                </div>
+                <div class="flex justify-between font-extrabold text-sm text-slate-900 pt-1">
+                  <span>Total Pre-Paid Bill</span>
+                  <span>₹${summary.total}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STRICT NO CANCELLATION POLICY BOX (KEY PROJECT REQUIREMENT) -->
+            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-3 space-y-2">
+              <div class="flex items-center gap-2 text-red-700 font-display font-extrabold text-xs">
+                <i class="fa-solid fa-ban text-sm"></i>
+                <span>STRICT NO-CANCELLATION POLICY</span>
+              </div>
+              <p class="text-[11px] text-red-900 leading-relaxed">
+                Once booked, kitchen preparation starts immediately and food is batched for your campus drop point. <b>Zero cancellations or refunds are permitted after payment</b> to prevent food waste and queue delays.
+              </p>
+              <label class="flex items-center gap-2 pt-1 cursor-pointer">
+                <input type="checkbox" checked onchange="toggleCancelConsent(this.checked)" class="rounded text-red-600 focus:ring-0" />
+                <span class="text-[11px] font-bold text-red-950">I understand no cancellation is allowed after booking.</span>
+              </label>
+            </div>
+
+            <!-- Digital Payment Eliminates Manual Paper Bill Check -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
+              <p class="text-[10px] font-bold uppercase text-slate-400">Digital Verification (No Paper Bill Check)</p>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-mobile-retro text-indigo-600"></i>
+                  <span class="text-xs font-bold text-slate-800">UPI Instant Pay (GPay / PhonePe)</span>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-600"> Auto-Verified</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-white border-t border-slate-200">
+            <button onclick="${isStaticGallery ? '' : "setAppScreen('tracking')"}" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs flex items-center justify-between shadow-lg">
+              <span>Confirm & Pay ₹${summary.total} (No Cancel)</span>
+              <span>Get Token & ETA <i class="fa-solid fa-check ml-1"></i></span>
+            </button>
+          </div>
+        `;
+      }
+
+      // SCREEN 4: LIVE ORDER TRACKING & EVOLVING HEURISTIC ETA ENGINE
+      if (screenName === 'tracking') {
+        return `
+          ${headerBar}
+          <div class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3 bg-slate-50">
+            <!-- Token & Live ETA Hero -->
+            <div class="bg-slate-900 text-white rounded-2xl p-4 space-y-3 shadow-lg">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/30 px-2 py-0.5 rounded">
+                  TOKEN #${state.orderId}
+                </span>
+                <span class="text-[10px] font-bold text-red-300 flex items-center gap-1">
+                  <i class="fa-solid fa-lock"></i> Cancellation Locked
+                </span>
+              </div>
+
+              <div class="flex items-baseline justify-between">
+                <div>
+                  <p class="text-[11px] text-slate-400">Estimated Arrival at ${summary.point.name}</p>
+                  <div class="flex items-baseline gap-2 mt-0.5">
+                    <span class="font-display font-extrabold text-3xl text-amber-400">${summary.estimatedMins} Mins</span>
+                    <span class="text-xs text-slate-300">(~1:29 PM)</span>
+                  </div>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-lg">
+                  <i class="fa-solid fa-person-biking"></i>
+                </div>
+              </div>
+
+              <!-- Evolving ETA Accuracy Notice (Requested by user!) -->
+              <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-[10px] text-slate-300 leading-relaxed">
+                <div class="flex items-center justify-between font-bold text-amber-300 mb-0.5">
+                  <span><i class="fa-solid fa-brain mr-1"></i> Heuristic ETA v1.0 (Beta)</span>
+                  <span>±3 Min Window</span>
+                </div>
+                <span>
+                  Initial ETA is estimated from current kitchen queue + batch drop route. Accuracy improves automatically as more campus QR scan timestamps are logged!
+                </span>
+              </div>
+            </div>
+
+            <!-- Step-by-Step Progress Timeline -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 space-y-3 shadow-sm">
+              <h4 class="font-display font-bold text-xs text-slate-800 uppercase tracking-wider">Live Preparation & Drop Status</h4>
+
+              <div class="space-y-3 relative">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] mt-0.5">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-slate-900">Pre-Paid & Bill Auto-Verified</p>
+                    <p class="text-[10px] text-slate-500">Skipped 15-min billing queue & manual receipt check</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] mt-0.5 animate-pulse">
+                    <i class="fa-solid fa-fire-burner"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-slate-900">Kitchen Preparing Batch #14</p>
+                    <p class="text-[10px] text-slate-500">Canteen display screen preparing your ${summary.count} items</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] mt-0.5">
+                    <i class="fa-solid fa-location-dot"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-slate-700">Runner Dispatched to ${summary.point.name}</p>
+                    <p class="text-[10px] text-slate-500">Keep your Order QR ready for instant handover</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-white border-t border-slate-200">
+            <button onclick="${isStaticGallery ? '' : "setAppScreen('qr')"}" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-lg">
+              <i class="fa-solid fa-qrcode"></i>
+              <span>Open Delivery QR Pass for Handover</span>
+            </button>
+          </div>
+        `;
+      }
+
+      // SCREEN 5 & 6: QR CODE PASS & DELIVERY COMPLETED VERIFICATION
+      if (screenName === 'qr' || screenName === 'completed') {
+        const isDone = screenName === 'completed' || (state.qrVerified && !isStaticGallery);
+        return `
+          ${headerBar}
+          <div class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3 bg-slate-50 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <button onclick="${isStaticGallery ? '' : "setAppScreen('tracking')"}" class="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                  <i class="fa-solid fa-arrow-left"></i> Live Status
+                </button>
+                <span class="text-[10px] font-mono font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded">#${state.orderId}</span>
+              </div>
+
+              <!-- QR Verification Card -->
+              <div class="bg-white border-2 ${isDone ? 'border-emerald-500' : 'border-indigo-500'} rounded-2xl p-4 text-center shadow-md relative overflow-hidden">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}">
+                  ${isDone ? '✔ QR Verified & Handed Over' : 'Show QR to Delivery Runner / Counter'}
+                </span>
+
+                <h3 class="font-display font-extrabold text-sm text-slate-900 mt-2">
+                  ${summary.point.name}
+                </h3>
+                <p class="text-[10px] text-slate-500">Replaces Manual Paper Bill Checking</p>
+
+                <!-- Stylized SVG QR Code Box -->
+                <div class="my-3 mx-auto w-44 h-44 bg-white border-4 border-slate-900 rounded-2xl p-3 relative flex items-center justify-center">
+                  ${!isDone ? '<div class="scan-laser"></div>' : ''}
+                  <!-- Crisp High-Contrast SVG QR Representation -->
+                  <svg viewBox="0 0 100 100" class="w-full h-full fill-slate-900">
+                    <path d="M5,5 h28 v28 h-28 z M11,11 v16 h16 v-16 z M15,15 h8 v8 h-8 z"/>
+                    <path d="M67,5 h28 v28 h-28 z M73,11 v16 h16 v-16 z M77,15 h8 v8 h-8 z"/>
+                    <path d="M5,67 h28 v28 h-28 z M11,73 v16 h16 v-16 z M15,77 h8 v8 h-8 z"/>
+                    <rect x="39" y="7" width="6" height="6"/><rect x="51" y="7" width="10" height="6"/>
+                    <rect x="39" y="19" width="12" height="6"/><rect x="45" y="27" width="6" height="12"/>
+                    <rect x="7" y="39" width="6" height="12"/><rect x="19" y="45" width="12" height="6"/>
+                    <rect x="39" y="43" width="18" height="14" rx="2" fill="#EA580C"/>
+                    <rect x="63" y="39" width="6" height="12"/><rect x="75" y="45" width="18" height="6"/>
+                    <rect x="39" y="63" width="12" height="6"/><rect x="57" y="63" width="12" height="12"/>
+                    <rect x="75" y="63" width="6" height="18"/><rect x="87" y="69" width="8" height="12"/>
+                    <rect x="39" y="79" width="10" height="14"/><rect x="55" y="85" width="16" height="8"/>
+                    <rect x="79" y="87" width="14" height="6"/>
+                  </svg>
+
+                  ${isDone ? `
+                    <div class="absolute inset-0 bg-emerald-600/95 rounded-xl flex flex-col items-center justify-center text-white p-2">
+                      <i class="fa-solid fa-circle-check text-4xl mb-1"></i>
+                      <p class="font-display font-extrabold text-xs">DELIVERY COMPLETED</p>
+                      <p class="text-[10px] opacity-90">Scanned at 1:28 PM</p>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="bg-slate-100 rounded-xl p-2 text-left text-[10px] space-y-1">
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Items Verified:</span>
+                    <span class="font-bold text-slate-800">${summary.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Bill Status:</span>
+                    <span class="font-bold text-emerald-700">PAID ₹${summary.total} • No Cancellation</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button to Simulate Delivery Runner Scan -->
+            <div class="pt-2">
+              ${!isDone ? `
+                <button onclick="${isStaticGallery ? '' : 'simulateStaffQRScan()'}" class="w-full py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-display font-bold text-xs flex items-center justify-center gap-2 shadow-lg">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Simulate Delivery Person QR Scan</span>
+                </button>
+              ` : `
+                <button onclick="${isStaticGallery ? '' : 'resetOrderState()'}" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-display font-bold text-xs flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-rotate-right"></i>
+                  <span>Start Another Demo Order</span>
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // --- 4. INTERACTIVE PHONE CONTROLLER ---
+    function setAppScreen(screen) {
+      appState.currentScreen = screen;
+      if (screen !== 'qr') appState.qrVerified = false;
+
+      // Update left-side jump buttons highlight
+      document.querySelectorAll('.jump-btn').forEach(btn => {
+        btn.className = 'jump-btn text-left px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 text-xs font-semibold transition flex items-center gap-2';
+      });
+      const activeBtn = document.getElementById('jump-' + screen);
+      if (activeBtn) {
+        activeBtn.className = 'jump-btn text-left px-3 py-2.5 rounded-xl border text-xs font-semibold transition flex items-center gap-2 bg-orange-500/20 border-orange-500 text-orange-200 ' + (screen === 'qr' ? 'col-span-2' : '');
+      }
+
+      renderInteractivePhone();
+    }
+
+    function selectPickupPoint(pointId) {
+      appState.selectedPointId = pointId;
+      renderInteractivePhone();
+    }
+
+    function toggleCancelConsent(val) {
+      appState.noCancelAccepted = val;
+    }
+
+    function simulateStaffQRScan() {
+      appState.currentScreen = 'qr';
+      appState.qrVerified = true;
+      const badge = document.getElementById('scanner-status-badge');
+      if (badge) {
+        badge.textContent = '✔ Scanned #IITDH-8492';
+        badge.className = 'text-xs text-emerald-300 font-mono font-bold';
+      }
+      renderInteractivePhone();
+    }
+
+    function resetOrderState() {
+      appState.qrVerified = false;
+      setAppScreen('home');
+    }
+
+    function renderInteractivePhone() {
+      const container = document.getElementById('phone-screen-content');
+      if (!container) return;
+      container.innerHTML = buildScreenHTML(appState.currentScreen, false);
+    }
+
+    // --- 5. GALLERY MODE: RENDER ALL 6 UI SCREENS FOR PPT SCREENSHOTS ---
+    function renderAllGalleryScreens() {
+      const grid = document.getElementById('gallery-screens-grid');
+      if (!grid) return;
+
+      const screensConfig = [
+        {
+          id: 'home',
+          step: 'UI Screen 01',
+          title: 'Peak-Rush Digital Menu',
+          desc: 'Eliminates the 15-min billing line with McDonald’s-style self-ordering & live prep time tags.'
+        },
+        {
+          id: 'drop',
+          step: 'UI Screen 02',
+          title: 'Campus Drop-Point Selector',
+          desc: 'Solves hostel entry rules by letting students pick R&D Block, Library, Admin Block, or Hostel Gate.'
+        },
+        {
+          id: 'checkout',
+          step: 'UI Screen 03',
+          title: 'Strict No-Cancellation Lock',
+          desc: 'Enforces pre-paid UPI billing and mandatory No-Cancellation agreement to prevent food waste.'
+        },
+        {
+          id: 'tracking',
+          step: 'UI Screen 04',
+          title: 'Dynamic ETA Engine (Beta)',
+          desc: 'Displays live Estimated Time of Arrival after booking, with self-improving batch accuracy.'
+        },
+        {
+          id: 'qr',
+          step: 'UI Screen 05',
+          title: 'Instant QR Pass (No Paper Bill)',
+          desc: 'Replaces manual paper receipt checking at the counter or drop point with a dynamic QR token.'
+        },
+        {
+          id: 'completed',
+          step: 'UI Screen 06',
+          title: 'Scanned & Delivery Completed',
+          desc: 'Delivery person scans the student’s QR code to mark handover complete in 2 seconds.'
+        }
+      ];
+
+      grid.innerHTML = screensConfig.map(cfg => `
+        <div class="flex flex-col items-center">
+          <!-- Callout Header Above Phone (Toggleable) -->
+          <div class="gallery-note mb-3 text-center max-w-[350px] ${appState.showGalleryNotes ? '' : 'hidden'}">
+            <span class="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+              ${cfg.step}
+            </span>
+            <h3 class="font-display font-bold text-base text-white mt-1">${cfg.title}</h3>
+            <p class="text-xs text-slate-400 mt-0.5">${cfg.desc}</p>
+          </div>
+
+          <!-- High-Res Phone Frame -->
+          <div class="phone-frame">
+            <div class="bg-slate-900 text-white px-5 pt-2 pb-1 flex items-center justify-between text-[11px] font-semibold">
+              <span>1:15 PM</span>
+              <div class="phone-notch"></div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-wifi text-[10px]"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+              </div>
+            </div>
+            <div class="flex-1 flex flex-col overflow-hidden bg-slate-50 text-slate-900">
+              ${buildScreenHTML(cfg.id, true)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleGalleryAnnotations() {
+      appState.showGalleryNotes = !appState.showGalleryNotes;
+      renderAllGalleryScreens();
+    }
+
+    // --- 6. PD-3 PRESENTATION SLIDE DECK ENGINE ---
+    const PPT_SLIDES = [
+      {
+        badge: 'IIT DHARWAD • DESIGN THINKING & CREATIVITY (PD-3)',
+        title: 'Skip The Queue',
+        subtitle: 'Smart Pre-Ordering, Campus Drop-Point Delivery & QR Handover System for IIT Dharwad Canteen',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
+              <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center mb-3 text-lg">
+                <i class="fa-solid fa-users-slash"></i>
+              </div>
+              <h4 class="font-display font-bold text-base text-white">The Peak-Hour Rush</h4>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                15 mins waiting in line to order + 10 mins waiting for food prep + manual paper bill verification bottleneck.
+              </p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
+              <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-3 text-lg">
+                <i class="fa-solid fa-map-location-dot"></i>
+              </div>
+              <h4 class="font-display font-bold text-base text-white">Campus Drop-Point Network</h4>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                Respects hostel entry rules by delivering batches to <b>R&D Block, Library, Admin Block, or Hostel Security Gates</b>.
+              </p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 text-lg">
+                <i class="fa-solid fa-qrcode"></i>
+              </div>
+              <h4 class="font-display font-bold text-base text-white">QR Scan & Zero Cancel</h4>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                Strict no-cancellation policy prevents food wastage; final QR scan completes handover in 3 seconds.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 2 • PROBLEM BREAKDOWN AT IIT DHARWAD CANTEEN',
+        title: 'Why Students Lose 25–30 Minutes Every Busy Break',
+        subtitle: 'Observational findings from peak lunch & evening snack hours at the campus canteen',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <div class="bg-red-950/40 border border-red-500/30 rounded-2xl p-5">
+              <span class="text-3xl font-display font-extrabold text-red-400">15 Mins</span>
+              <h4 class="font-bold text-sm text-white mt-2">1. Billing Counter Queue</h4>
+              <p class="text-xs text-slate-300 mt-1">Students crowd around a single billing point between lectures just to place an order.</p>
+            </div>
+            <div class="bg-amber-950/40 border border-amber-500/30 rounded-2xl p-5">
+              <span class="text-3xl font-display font-extrabold text-amber-400">10 Mins</span>
+              <h4 class="font-bold text-sm text-white mt-2">2. Unscheduled Prep Wait</h4>
+              <p class="text-xs text-slate-300 mt-1">Everyone stands idle around the food counter waiting for their items to be cooked and plated.</p>
+            </div>
+            <div class="bg-purple-950/40 border border-purple-500/30 rounded-2xl p-5">
+              <span class="text-3xl font-display font-extrabold text-purple-400">3–5 Mins</span>
+              <h4 class="font-bold text-sm text-white mt-2">3. Manual Bill Checking</h4>
+              <p class="text-xs text-slate-300 mt-1">Staff manually inspect paper receipts every single time before handing over plates.</p>
+            </div>
+            <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-5">
+              <span class="text-3xl font-display font-extrabold text-indigo-400">Restricted</span>
+              <h4 class="font-bold text-sm text-white mt-2">4. Hostel Dorm Access</h4>
+              <p class="text-xs text-slate-300 mt-1">Outsiders/runners cannot enter inside hostel dorm corridors, requiring smart campus pickup points.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 3 • OUR SOLUTION ARCHITECTURE',
+        title: 'McDonald’s Digital Flow + IIT Dharwad Drop Points',
+        subtitle: 'How "Skip The Queue" transforms canteen operations from chaotic queues to scheduled drops',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 space-y-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Mode A: At Canteen</span>
+              <h4 class="font-display font-bold text-lg text-white">McDonald’s-Style Self-Ordering & Express Pickup</h4>
+              <ul class="text-xs sm:text-sm text-slate-300 space-y-2 list-disc list-inside">
+                <li>Students pre-order on the web/mobile app before walking to the canteen.</li>
+                <li>Kitchen receives structured digital tickets grouped by item batch.</li>
+                <li>Student walks straight to the <b>Express Pickup Window</b> when notified.</li>
+              </ul>
+            </div>
+            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 space-y-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Mode B: Campus Delivery</span>
+              <h4 class="font-display font-bold text-lg text-white">Approved Campus Drop-Off Hubs</h4>
+              <ul class="text-xs sm:text-sm text-slate-300 space-y-2 list-disc list-inside">
+                <li>Solves hostel dorm restrictions by using fixed campus drop points:</li>
+                <li><b>R&D Block Foyer</b>, <b>Library (KRC)</b>, <b>Admin Block</b>, and <b>Hostel Security Gates</b>.</li>
+                <li>Students select their preferred hub during checkout.</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 4 • KEY OPERATIONAL SAFEGUARDS',
+        title: 'Strict No-Cancellation & Evolving ETA Engine',
+        subtitle: 'Designed for real-world canteen constraints and continuous improvement',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="bg-red-950/30 border border-red-500/40 rounded-2xl p-6">
+              <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-ban text-2xl text-red-400"></i>
+                <h4 class="font-display font-bold text-lg text-white">1. Strict No-Cancellation Policy</h4>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Once an order is booked and paid via UPI, kitchen preparation begins immediately and the runner route is locked. <b>No cancellation is allowed after booking</b>—protecting the canteen from wasted food and fake orders.
+              </p>
+            </div>
+            <div class="bg-amber-950/30 border border-amber-500/40 rounded-2xl p-6">
+              <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-clock-rotate-left text-2xl text-amber-400"></i>
+                <h4 class="font-display font-bold text-lg text-white">2. Adaptive ETA (Estimated Time of Arrival)</h4>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Immediately after booking, the app shows an <b>Estimated Time of Arrival (ETA)</b>. In Phase 1, it uses a baseline kitchen + transit heuristic; over time, real QR scan timestamps train the system to predict exact peak-hour ETAs.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 5 • ELIMINATING PAPER BILL CHECKS',
+        title: 'Encrypted QR Handover Verification',
+        subtitle: 'Replacing slow manual paper bill inspection with a 2-second scan',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6 items-center">
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
+              <span class="text-xs font-mono text-orange-400 font-bold">STEP 01</span>
+              <h4 class="font-display font-bold text-base text-white mt-1">Unique Order QR Generated</h4>
+              <p class="text-xs text-slate-300 mt-1">After UPI payment, student receives a dynamic QR pass linked to their Token ID and item list.</p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
+              <span class="text-xs font-mono text-orange-400 font-bold">STEP 02</span>
+              <h4 class="font-display font-bold text-base text-white mt-1">Scanned by Delivery Person</h4>
+              <p class="text-xs text-slate-300 mt-1">At R&D Block, Library, Admin Block, or Hostel Gate, the runner scans the student's QR code.</p>
+            </div>
+            <div class="bg-emerald-950/40 border border-emerald-500/40 p-5 rounded-2xl">
+              <span class="text-xs font-mono text-emerald-400 font-bold">STEP 03</span>
+              <h4 class="font-display font-bold text-base text-white mt-1">Instant Handover & Log</h4>
+              <p class="text-xs text-slate-300 mt-1">Order is marked <b>Completed</b>, preventing duplicate claims and recording actual delivery duration for ETA training.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 6 • UI PROTOTYPE WALKTHROUGH',
+        title: 'End-to-End Student User Interface',
+        subtitle: 'Click "2. All 6 UI Screens" in the top bar anytime to view or screenshot full mobile frames',
+        content: `
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6 text-center">
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
+              <div class="text-2xl mb-2">🍔</div>
+              <p class="font-bold text-xs text-white">1. Rush Menu</p>
+              <p class="text-[11px] text-slate-400 mt-1">Live prep time & self-ordering</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
+              <div class="text-2xl mb-2">📍</div>
+              <p class="font-bold text-xs text-white">2. Drop Point</p>
+              <p class="text-[11px] text-slate-400 mt-1">R&D, Library, Admin, Hostel Gate</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
+              <div class="text-2xl mb-2">🚫</div>
+              <p class="font-bold text-xs text-white">3. No-Cancel Pay</p>
+              <p class="text-[11px] text-slate-400 mt-1">Mandatory policy lock + UPI</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
+              <div class="text-2xl mb-2">⏱️</div>
+              <p class="font-bold text-xs text-white">4. Live ETA</p>
+              <p class="text-[11px] text-slate-400 mt-1">Heuristic countdown + batch state</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl col-span-2 md:col-span-1">
+              <div class="text-2xl mb-2">📲</div>
+              <p class="font-bold text-xs text-white">5. QR Scan</p>
+              <p class="text-[11px] text-slate-400 mt-1">Runner scans QR to complete</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        badge: 'SLIDE 7 • EXPECTED CAMPUS IMPACT & ROADMAP',
+        title: 'Transforming the IIT Dharwad Dining Experience',
+        subtitle: 'Measurable gains for students, canteen staff, and campus runners',
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl text-center">
+              <p class="font-display font-extrabold text-4xl text-emerald-400">90%</p>
+              <p class="font-bold text-sm text-white mt-2">Reduction in Counter Crowd</p>
+              <p class="text-xs text-slate-400 mt-1">Students only arrive when their batch is ready or collect at their academic/hostel drop point.</p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl text-center">
+              <p class="font-display font-extrabold text-4xl text-amber-400">0%</p>
+              <p class="text-xs uppercase font-bold text-amber-300 mt-1">Unclaimed Food Waste</p>
+              <p class="text-xs text-slate-400 mt-1">100% pre-paid orders with strict no-cancellation policy protect canteen margins.</p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl text-center">
+              <p class="font-display font-extrabold text-4xl text-indigo-400">3 Sec</p>
+              <p class="font-bold text-sm text-white mt-2">QR Handover Speed</p>
+              <p class="text-xs text-slate-400 mt-1">Replaces manual paper receipt checking and trains the smart ETA model over time.</p>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    let currentSlideIndex = 0;
+
+    function renderSlide() {
+      const stage = document.getElementById('ppt-slide-stage');
+      const counter = document.getElementById('slide-counter');
+      const dots = document.getElementById('slide-dots');
+      if (!stage) return;
+
+      const s = PPT_SLIDES[currentSlideIndex];
+      counter.textContent = `Slide ${currentSlideIndex + 1} / ${PPT_SLIDES.length}`;
+
+      stage.innerHTML = `
+        <div>
+          <span class="inline-block text-xs font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+            ${s.badge}
+          </span>
+          <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white mt-4 leading-tight">
+            ${s.title}
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-3xl">
+            ${s.subtitle}
+          </p>
+          ${s.content}
+        </div>
+
+        <div class="pt-8 mt-8 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span>Skip The Queue • IIT Dharwad Design Thinking & Creativity Project</span>
+          <span class="font-mono">PD-3 Advancement Prototype</span>
+        </div>
+      `;
+
+      dots.innerHTML = PPT_SLIDES.map((_, idx) => `
+        <button onclick="goToSlide(${idx})" class="h-2.5 rounded-full transition-all ${idx === currentSlideIndex ? 'w-8 bg-orange-500' : 'w-2.5 bg-slate-700 hover:bg-slate-500'}"></button>
+      `).join('');
+    }
+
+    function changeSlide(delta) {
+      currentSlideIndex = (currentSlideIndex + delta + PPT_SLIDES.length) % PPT_SLIDES.length;
+      renderSlide();
+    }
+
+    function goToSlide(idx) {
+      currentSlideIndex = idx;
+      renderSlide();
+    }
+
+    // --- 7. WORKSPACE TAB SWITCHING ---
+    function switchWorkspaceMode(mode) {
+      const modes = ['prototype', 'gallery', 'ppt'];
+      modes.forEach(m => {
+        const el = document.getElementById('workspace-' + m);
+        const tab = document.getElementById('tab-' + m);
+        if (m === mode) {
+          el.classList.remove('hidden');
+          tab.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-orange-500 text-white shadow';
+        } else {
+          el.classList.add('hidden');
+          tab.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-300 hover:text-white';
+        }
+      });
+    }
+
+    function openGithubModal() {
+      const modal = document.getElementById('github-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeGithubModal() {
+      const modal = document.getElementById('github-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Keyboard navigation for slides
+    window.addEventListener('keydown', (e) => {
+      const pptVisible = !document.getElementById('workspace-ppt').classList.contains('hidden');
+      if (pptVisible) {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+      }
+    });
+
+    // Initialize everything on load
+    window.onload = function () {
+      renderInteractivePhone();
+      renderAllGalleryScreens();
+      renderSlide();
+    };
+  </script>
+</body>
+</html>
